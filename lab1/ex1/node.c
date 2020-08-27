@@ -1,8 +1,8 @@
 /*************************************
 * Lab 1 Exercise 1
-* Name:
-* Student No:
-* Lab Group:
+* Name: Kieron Koh
+* Student No: A0206059H
+* Lab Group: 13
 *************************************/
 
 #include <stdio.h>
@@ -17,7 +17,14 @@
 // inserts a new node with data value at index (counting from the front
 // starting at 0)
 void insert_node_from_head_at(list *lst, int index, int data)
-{
+{  
+    struct NODE *p; //declare a pointer p
+    p = malloc(sizeOf(struct));
+
+   
+
+
+
 }
 
 // inserts a new node with data value at index (counting from the back
