@@ -92,7 +92,7 @@ void insert_node_from_tail_at(list *lst, int index, int data)
             lst->tail = p;
         }
         
-        else if (current->next == NULL) { //inserting at the start of the linekd list
+        else if (current->prev == NULL) { //inserting at the start of the linekd list
             current->prev = p;
             p->next = current;
             p->prev = NULL;
