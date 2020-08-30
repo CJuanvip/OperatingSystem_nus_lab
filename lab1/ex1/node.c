@@ -128,12 +128,12 @@ void delete_node_from_head_at(list *lst, int index)
             current = current->next;
         }
             
-        if (index == 0) { //inserting at the tail of the linked list
+        if (index == 0) { //deleting at the tail of the linked list
             lst->head = current->next;
             current->next->prev = NULL;
         }
         
-        else if (current->next == NULL) { //inserting at the start of the linekd list
+        else if (current->next == NULL) { //deleting at the start of the linked list
             current->prev->next = NULL;
             lst->tail = current->prev;
         }
@@ -144,7 +144,7 @@ void delete_node_from_head_at(list *lst, int index)
         }
     }
 
-    if (current) {
+    if (current) { //free pointer
         free(current);
     }
 }
@@ -153,10 +153,62 @@ void delete_node_from_head_at(list *lst, int index)
 // note: index is guaranteed to be valid
 void delete_node_from_tail_at(list *lst, int index)
 {
+  struct NODE *current; //declare a current pointer to traverse the linked list
+    int i;
+    
+    current = lst->tail; //set current to the first node (index 0)
+    
+    if (current == NULL || lst->tail == lst->head) {
+        lst->head = NULL;
+        lst->tail = NULL;
+    }
+
+    else {
+
+        for (i=0; i< index; i++) {
+            current = current->prev;
+        }
+            
+        if (index == 0) { // deleting at the tail of the linked list
+            lst->tail = current->prev;
+            current->prev->next = NULL;
+        }
+        
+        else if (current->prev == NULL) { //deleting at the start of the linked list
+            current->next->prev = NULL;
+            lst->head = current->next;
+        }
+
+        else {
+            current->next->prev = current->prev;
+            current->prev->next = current->next;
+        }
+    }
+
+    if (current) { //free pointer
+        free(current);
+    }
+
 }
 
 // resets list to an empty state (no nodes) and frees any allocated memory in
 // the process
 void reset_list(list *lst)
 {
+    struct NODE *current;
+    struct NODE *temp;
+
+    current = lst->head;
+    
+    lst->head = NULL;
+    lst->tail = NULL;
+
+    while (current != NULL) {
+        temp = current;
+        current = current->next;
+    
+        if (temp) {
+            free(temp);
+        }
+    }
 }
