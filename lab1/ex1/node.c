@@ -20,36 +20,45 @@ void insert_node_from_head_at(list *lst, int index, int data)
 {  
     struct NODE *p; //declare a pointer p
     struct NODE *current; //declare a current pointer to traverse the linked list
-    p = (struct*) malloc(sizeOf(struct)); // allocating memory for the linked list
+    p = (struct NODE*) malloc(sizeof(struct NODE)); // allocating memory for the linked list
     int i;
     
     p->data = data; // set the data of inserted node as data
 
     current = lst->head; //set current to the first node (index 0)
     
-    for (i=0; i< index; i++) {
-        current = current->next;
-    }
-        
-    if (current->prev == NULL) { //inserting at the head of the linked list
-        p->next = current;
-        p->prev = NULL;
+    if (current == NULL) { //if list is empty!
         lst->head = p;
-    }
-    
-    else if (current->next == NULL) { //inserting at the end of the linekd list
-        current->next = p;
-        p->prev = current;
-        p->next = NULL;
         lst->tail = p;
     }
 
     else {
-        p->next = current;
-        p->prev = current->prev;
-        current->prev->next = p;
-    }
 
+        for (i=0; i< index - 1; i++) {
+            current = current->next;
+        }
+            
+        if (index == 0) { //inserting at the head of the linked list
+            p->next = current;
+            p->prev = NULL;
+            current->prev = p;
+            lst->head = p;
+        }
+        
+        else if (current->next == NULL) { //inserting at the end of the linekd list
+            current->next = p;
+            p->prev = current;
+            p->next = NULL;
+            lst->tail = p;
+        }
+
+        else {
+            p->next = current->next;
+            p->next->prev = p;
+            current->next = p;
+            p->prev = current;
+        }
+    }
 }
 
 // inserts a new node with data value at index (counting from the back
