@@ -24,6 +24,8 @@ void insert_node_from_head_at(list *lst, int index, int data)
     int i;
     
     p->data = data; // set the data of inserted node as data
+    p->next = NULL;
+    p->prev = NULL;
 
     current = lst->head; //set current to the first node (index 0)
     
@@ -71,7 +73,9 @@ void insert_node_from_tail_at(list *lst, int index, int data)
     int i;
     
     p->data = data; // set the data of inserted node as data
-
+    p->next = NULL;
+    p->prev = NULL;
+    
     current = lst->tail; //set current to the first node (index 0)
     
     if (current == NULL) { //if list is empty!
@@ -143,6 +147,9 @@ void delete_node_from_head_at(list *lst, int index)
             current->next->prev = current->prev;
         }
     }
+    
+    current->prev = NULL;
+    current->next = NULL;
 
     if (current) { //free pointer
         free(current);
@@ -155,7 +162,7 @@ void delete_node_from_tail_at(list *lst, int index)
 {
   struct NODE *current; //declare a current pointer to traverse the linked list
     int i;
-    
+   
     current = lst->tail; //set current to the first node (index 0)
     
     if (current == NULL || lst->tail == lst->head) {
@@ -185,30 +192,21 @@ void delete_node_from_tail_at(list *lst, int index)
         }
     }
 
+    current->prev = NULL;
+    current->next = NULL;
+
     if (current) { //free pointer
         free(current);
     }
 
 }
-
 // resets list to an empty state (no nodes) and frees any allocated memory in
 // the process
-void reset_list(list *lst)
-{
-    struct NODE *current;
-    struct NODE *temp;
+void reset_list(list *lst) {
 
-    current = lst->head;
-    
-    lst->head = NULL;
-    lst->tail = NULL;
-
-    while (current != NULL) {
-        temp = current;
-        current = current->next;
-    
-        if (temp) {
-            free(temp);
-        }
+    while (lst->head != NULL && lst->tail != NULL) {
+        delete_node_from_head_at(lst, 0);
     }
 }
+
+
