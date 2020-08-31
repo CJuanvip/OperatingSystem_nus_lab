@@ -1,8 +1,8 @@
 /*************************************
 * Lab 1 Exercise 2
-* Name:
-* Student No:
-* Lab Group:
+* Name: Kieron Koh
+* Student No: A0206059H
+* Lab Group: 13
 *************************************/
 
 #include <stdio.h>
@@ -22,6 +22,9 @@
 #define RESET_LIST 5
 #define MAP 6
 
+void run_instruction(list*lst, int instr);
+extern int (*func_list[5])(int);
+
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -39,4 +42,80 @@ int main(int argc, char **argv)
     update_functions();
 
     // rest of code logic here
+    list *lst = (list *)malloc(sizeof(list));
+    lst->head = NULL;
+    lst->tail = NULL;
+
+    int instr;
+    while (scanf("%d", &instr) == 1)
+    {
+        run_instruction(lst, instr);
+    }
+
+    reset_list(lst);
+    free(lst);
 }
+
+
+void run_instruction(list *lst, int instr)
+{
+    int index, data;
+    switch (instr)
+    {
+    case SUM_LIST:
+        sum_list(lst);
+        break;
+    case INSERT_FROM_HEAD_AT:
+        scanf("%d %d", &index, &data);
+        insert_node_from_head_at(lst, index, data);
+        break;
+    case INSERT_FROM_TAIL_AT:
+        scanf("%d %d", &index, &data);
+        insert_node_from_tail_at(lst, index, data);
+        break;
+    case DELETE_FROM_HEAD_AT:
+        scanf("%d", &index);
+        delete_node_from_head_at(lst, index);
+        break;
+     case DELETE_FROM_TAIL_AT:
+        scanf("%d", &index);
+        delete_node_from_tail_at(lst, index);
+        break;   
+    case RESET_LIST:
+        reset_list(lst);
+        break;
+    case MAP:
+        scanf("%d", &index); 
+        map(lst, func_list[index]);
+        break;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

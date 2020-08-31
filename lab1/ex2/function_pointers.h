@@ -8,7 +8,7 @@
 //declare your func_list array here
 //remember to add in the keyword - extern
 
-void (*func_list[5])(int);
+extern int (*func_list[5])(int);
 
 void update_functions();
 
