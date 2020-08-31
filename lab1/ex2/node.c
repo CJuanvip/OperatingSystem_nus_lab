@@ -1,8 +1,8 @@
 /*************************************
 * Lab 1 Exercise 2
-* Name:
-* Student No:
-* Lab Group:
+* Name: Kieron Koh
+* Student No: A0206059H
+* Lab Group: 13
 *************************************/
 
 #include <stdio.h>
@@ -219,15 +219,34 @@ void map(list *lst, int (*func)(int))
 
     while (current != NULL) {
         temp = current;
-        temp->data = func(temp->data);
+        func(temp->data);
         current = current->next;
     }
 
-    temp->mext = NULL;
+    temp->next = NULL;
+    temp->prev = NULL;
+    current->next = NULL;
+    current->prev = NULL;
 }
 
 // traverses list and returns the sum of the data values of every node
 // in the list
 long sum_list(list *lst)
 {
+    long sum = 0;
+    struct NODE *current;
+    
+    current = lst->head;
+
+    while (current != NULL) {
+        sum += current->data;
+        current = current->next;
+    }
+
+    current->next = NULL;
+    current->prev = NULL;
+
+    return sum;
 }
+
+
