@@ -213,6 +213,17 @@ void reset_list(list *lst) {
 // traverses list and applies func on data values of all elements in the list
 void map(list *lst, int (*func)(int))
 {
+    struct NODE *current;
+    struct NODE *temp;
+    current = lst->head;
+
+    while (current != NULL) {
+        temp = current;
+        temp->data = func(temp->data);
+        current = current->next;
+    }
+
+    temp->mext = NULL;
 }
 
 // traverses list and returns the sum of the data values of every node
