@@ -2,14 +2,14 @@
 
 ####################
 # Lab 1 Exercise 4
-# Name:
-# Student No:
-# Lab Group: 
+# Name: Kieron Koh
+# Student No: A0206059H
+# Lab Group: 13
 ####################
 
 # fill the below up
-hostname=
-kernel_version=
+hostname=$(uname -n) 
+kernel_version=$(uname -v) 
 process_cnt=
 user_process_cnt=
 mem_usage=
