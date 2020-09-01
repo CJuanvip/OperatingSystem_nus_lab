@@ -24,6 +24,7 @@
 
 void run_instruction(list*lst, int instr, int index, int data);
 extern int (*func_list[5])(int);
+void print_list(list *lst);
 
 int main(int argc, char **argv)
 {
@@ -62,16 +63,25 @@ int main(int argc, char **argv)
         new[0] = arr[0] - '0';
         new[1] = arr[2] - '0';
         new[2] = arr[4] - '0';
+
+        if (new[0] == 0 || new[0] == 5) {
+            new[2] = 0;
+            new[1] = 0;
+        }
+
+        if (new[0] == 6) {
+            new[2] = 0;
+        }
        
         if ((new[0] - 0) * (new[0]-6) <= 0) {
-               printf("%d, %d, %d \n", new[0], new[1], new[2]); 
+               printf("%d, %d, %d ", new[0], new[1], new[2]); 
+               print_list(lst); 
                run_instruction(lst, new[0], new[1], new[2]);
         
         }
            
     }
     
-    reset_list(lst);
     free(lst);
     fclose(fpointer);
 }
@@ -79,6 +89,7 @@ int main(int argc, char **argv)
 
 void run_instruction(list *lst, int instr, int index, int data)
 {
+    printf("Running instruction! \n");
     switch (instr)
     {
     case SUM_LIST:
@@ -101,12 +112,30 @@ void run_instruction(list *lst, int instr, int index, int data)
         break;
     case MAP:
         map(lst, func_list[index]);
-        break;
+ 
     }
 }
 
 
+void print_list(list *lst)
+{
+    printf("Forward: [ ");
+    node *curr = lst->head;
+    while (curr != NULL)
+    {
+        printf("%d ", curr->data);
+        curr = curr->next;
+    }
 
+    printf("], Backwards: [ ");
+    curr = lst->tail;
+    while (curr != NULL)
+    {
+        printf("%d ", curr->data);
+        curr = curr->prev;
+    }
+    printf("]\n");
+}
 
 
 

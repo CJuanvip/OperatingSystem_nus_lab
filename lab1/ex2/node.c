@@ -214,28 +214,26 @@ void reset_list(list *lst) {
 void map(list *lst, int (*func)(int))
 {
     struct NODE *current;
-    struct NODE *temp;
     current = lst->head;
 
     while (current != NULL) {
-        temp = current;
-        temp->data = func(temp->data);
+        current->data = func(current->data);
         current = current->next;
     }
 
-    temp->next = NULL;
-    temp->prev = NULL;
     current->next = NULL;
     current->prev = NULL;
+    free(current);
 }
 
 // traverses list and returns the sum of the data values of every node
 // in the list
 long sum_list(list *lst)
-{
-    long sum = 0;
-    struct NODE *current;
+{  
     
+    int sum = 0;
+    
+    struct NODE *current;
     current = lst->head;
 
     while (current != NULL) {
@@ -243,10 +241,11 @@ long sum_list(list *lst)
         current = current->next;
     }
 
-    current->next = NULL;
-    current->prev = NULL;
+    printf("--SUM OF LIST: %ld--\n", (long) sum);
 
-    return sum;
+    free(current);
+
+    return (long) sum;
 }
 
 
