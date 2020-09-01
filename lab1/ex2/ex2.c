@@ -22,7 +22,7 @@
 #define RESET_LIST 5
 #define MAP 6
 
-void run_instruction(list*lst, int instr);
+void run_instruction(list*lst, int instr, int index, int data);
 extern int (*func_list[5])(int);
 
 int main(int argc, char **argv)
@@ -54,11 +54,21 @@ int main(int argc, char **argv)
     lst->head = NULL;
     lst->tail = NULL;
     
-    int instr[3];
-    while (fscanf(fpointer, "%d", &instr) == 1)
-    {
-        printf("%d", instr);
-        run_instruction(lst, instr);
+    char arr[6];
+    int new[3];
+    
+    while (fgets(arr, sizeof(arr), fpointer) != NULL)
+    {   
+        new[0] = arr[0] - '0';
+        new[1] = arr[2] - '0';
+        new[2] = arr[4] - '0';
+       
+        if ((new[0] - 0) * (new[0]-6) <= 0) {
+               printf("%d, %d, %d \n", new[0], new[1], new[2]); 
+               run_instruction(lst, new[0], new[1], new[2]);
+        
+        }
+           
     }
     
     reset_list(lst);
@@ -67,35 +77,29 @@ int main(int argc, char **argv)
 }
 
 
-void run_instruction(list *lst, int instr)
+void run_instruction(list *lst, int instr, int index, int data)
 {
-    int index, data;
     switch (instr)
     {
     case SUM_LIST:
         sum_list(lst);
         break;
     case INSERT_FROM_HEAD_AT:
-        scanf("%d %d", &index, &data);
         insert_node_from_head_at(lst, index, data);
         break;
     case INSERT_FROM_TAIL_AT:
-        scanf("%d %d", &index, &data);
         insert_node_from_tail_at(lst, index, data);
         break;
     case DELETE_FROM_HEAD_AT:
-        scanf("%d", &index);
         delete_node_from_head_at(lst, index);
         break;
      case DELETE_FROM_TAIL_AT:
-        scanf("%d", &index);
         delete_node_from_tail_at(lst, index);
         break;   
     case RESET_LIST:
         reset_list(lst);
         break;
     case MAP:
-        scanf("%d", &index); 
         map(lst, func_list[index]);
         break;
     }
