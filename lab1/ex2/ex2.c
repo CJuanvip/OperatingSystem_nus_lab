@@ -24,7 +24,7 @@
 
 void run_instruction(list*lst, int instr, int index, int data);
 extern int (*func_list[5])(int);
-void print_list(list *lst);
+//void print_list(list *lst); //for testing!
 
 int main(int argc, char **argv)
 {
@@ -54,34 +54,35 @@ int main(int argc, char **argv)
     list *lst = (list *)malloc(sizeof(list));
     lst->head = NULL;
     lst->tail = NULL;
-    
-    char arr[6];
-    int new[3];
-    
-    while (fgets(arr, sizeof(arr), fpointer) != NULL)
-    {   
-        new[0] = arr[0] - '0';
-        new[1] = arr[2] - '0';
-        new[2] = arr[4] - '0';
+   
+   char arr[100];
+   
+   while (fgets(arr, sizeof(arr), fpointer) != NULL)
+   {   
+       int first;
+       int second;
+       int third;
 
-        if (new[0] == 0 || new[0] == 5) {
-            new[2] = 0;
-            new[1] = 0;
-        }
+       sscanf(arr, "%d" "%d" "%d", &first, &second, &third);
 
-        if (new[0] == 6) {
-            new[2] = 0;
-        }
+       if (first == 0 || first == 5) {
+            second = 0;
+            third = 0;
+       }
+
+       else if (first == 6) {
+            third = 0;
+       }
+
+       else {}
+
+   //    printf("%d, %d, %d\n", first, second, third); //For testing!
+   //    print_list(lst); //For testing!
+       run_instruction(lst, first, second, third);
        
-        if ((new[0] - 0) * (new[0]-6) <= 0) {
-               printf("%d, %d, %d ", new[0], new[1], new[2]); 
-               print_list(lst); 
-               run_instruction(lst, new[0], new[1], new[2]);
-        
-        }
-           
-    }
+   }
     
+   
     free(lst);
     fclose(fpointer);
 }
@@ -89,7 +90,6 @@ int main(int argc, char **argv)
 
 void run_instruction(list *lst, int instr, int index, int data)
 {
-    printf("Running instruction! \n");
     switch (instr)
     {
     case SUM_LIST:
@@ -117,48 +117,30 @@ void run_instruction(list *lst, int instr, int index, int data)
 }
 
 
-void print_list(list *lst)
-{
-    printf("Forward: [ ");
-    node *curr = lst->head;
-    while (curr != NULL)
-    {
-        printf("%d ", curr->data);
-        curr = curr->next;
-    }
 
-    printf("], Backwards: [ ");
-    curr = lst->tail;
-    while (curr != NULL)
-    {
-        printf("%d ", curr->data);
-        curr = curr->prev;
-    }
-    printf("]\n");
-}
-
-
-
-
+//void print_list(list *lst) //For testing!
+//{
+//    printf("Forward: [ ");
+//    node *curr = lst->head;
+//    while (curr != NULL)
+//    {
+//        printf("%d ", curr->data);
+//        curr = curr->next;
+//    }
+//
+//    printf("], Backwards: [ ");
+//    curr = lst->tail;
+//    while (curr != NULL)
+//    {
+//        printf("%d ", curr->data);
+//        curr = curr->prev;
+//    }
+//    printf("]\n");
+//}
+//
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 

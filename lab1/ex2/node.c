@@ -240,7 +240,7 @@ long sum_list(list *lst)
         current = current->next;
     }
 
-    printf("--SUM OF LIST: %ld--\n", (long) sum);
+    printf("%ld\n", (long) sum);
 
     free(current);
 
