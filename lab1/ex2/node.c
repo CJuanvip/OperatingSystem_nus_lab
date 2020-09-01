@@ -219,7 +219,7 @@ void map(list *lst, int (*func)(int))
 
     while (current != NULL) {
         temp = current;
-        func(temp->data);
+        temp->data = func(temp->data);
         current = current->next;
     }
 

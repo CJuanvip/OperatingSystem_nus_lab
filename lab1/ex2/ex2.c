@@ -42,18 +42,28 @@ int main(int argc, char **argv)
     update_functions();
 
     // rest of code logic here
+    FILE *fpointer;
+    fpointer = fopen(fname, "r");
+   
+    if (fpointer == NULL) {
+        printf("ERROR!");
+    }
+
+       
     list *lst = (list *)malloc(sizeof(list));
     lst->head = NULL;
     lst->tail = NULL;
-
-    int instr;
-    while (scanf("%d", &instr) == 1)
+    
+    int instr[3];
+    while (fscanf(fpointer, "%d", &instr) == 1)
     {
+        printf("%d", instr);
         run_instruction(lst, instr);
     }
-
+    
     reset_list(lst);
     free(lst);
+    fclose(fpointer);
 }
 
 
