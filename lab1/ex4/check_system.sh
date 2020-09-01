@@ -10,8 +10,8 @@
 # fill the below up
 hostname=$(uname -n) 
 kernel_version=$(uname -v) 
-process_cnt=
-user_process_cnt=
+process_cnt=$(ps -e | wc -l)
+user_process_cnt=$(ps $USER | wc -l)
 mem_usage=
 swap_usage=
 
