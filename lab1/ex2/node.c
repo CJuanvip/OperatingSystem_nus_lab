@@ -21,7 +21,7 @@ void insert_node_from_head_at(list *lst, int index, int data)
 {  
     struct NODE *p; //declare a pointer p
     struct NODE *current; //declare a current pointer to traverse the linked list
-    p = (struct NODE*) malloc(sizeof(struct NODE)); // allocating memory for the linked list
+    p = (struct NODE*) malloc(sizeof(node)); // allocating memory for the linked list
     int i;
     
     p->data = data; // set the data of inserted node as data
@@ -70,7 +70,8 @@ void insert_node_from_tail_at(list *lst, int index, int data)
 {
     struct NODE *p; //declare a pointer p
     struct NODE *current; //declare a current pointer to traverse the linked list
-    p = (struct NODE*) malloc(sizeof(struct NODE)); // allocating memory for the linked list
+    p = (struct NODE*) malloc(sizeof(node)); // allocating memory for the linked list
+
     int i;
     
     p->data = data; // set the data of inserted node as data
@@ -222,14 +223,17 @@ void map(list *lst, int (*func)(int))
         current = current->next;
     }
 
-    free(current);
+    if (current) { //free pointer
+        free(current);
+    }
+
+
 }
 
 // traverses list and returns the sum of the data values of every node
 // in the list
 long sum_list(list *lst)
-{  
-    
+{ 
     int sum = 0;
     
     struct NODE *current;
@@ -242,7 +246,9 @@ long sum_list(list *lst)
 
     printf("%ld\n", (long) sum);
 
-    free(current);
+    if (current) { //free pointer
+        free(current);
+    }
 
     return (long) sum;
 }

@@ -82,7 +82,7 @@ int main(int argc, char **argv)
        
    }
     
-   
+    reset_list(lst);   
     free(lst);
     fclose(fpointer);
 }
