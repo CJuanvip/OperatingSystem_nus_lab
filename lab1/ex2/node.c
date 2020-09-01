@@ -213,6 +213,7 @@ void reset_list(list *lst) {
 // traverses list and applies func on data values of all elements in the list
 void map(list *lst, int (*func)(int))
 {
+    
     struct NODE *current;
     current = lst->head;
 
@@ -221,8 +222,6 @@ void map(list *lst, int (*func)(int))
         current = current->next;
     }
 
-    current->next = NULL;
-    current->prev = NULL;
     free(current);
 }
 
