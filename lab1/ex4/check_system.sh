@@ -11,9 +11,9 @@
 hostname=$(uname -n) 
 kernel_version=$(uname -v) 
 process_cnt=$(ps -e | wc -l)
-user_process_cnt=$(ps $USER | wc -l)
-mem_usage=
-swap_usage=
+user_process_cnt=$(ps $user | wc -l)
+mem_usage=$(free | awk 'FNR == 2 {print ($3/$2*100)}')
+swap_usage=$(free | awk 'FNR == 3 {print ($3/$2*100)}')
 
 echo "Hostname: $hostname"
 echo "Linux Kernel Version: $kernel_version"
