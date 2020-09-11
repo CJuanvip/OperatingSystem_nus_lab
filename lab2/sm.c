@@ -21,28 +21,16 @@ void sm_free(void) {
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
- //   char* array = malloc(sizeof(char)*strlen(processes));
- //   int PID, i;
+    execv(processes[0], (char**) processes;
+}
 
- //   array = strcpy(array, processes);
-    int PID;
-    PID = fork();
-
-    if (PID == 0) { //Child Process
-        printf("Child Process! \n");
-
-    }
-
-    else {
-
-        printf("Parent Process! \n");
-    }
-
-
-}//
 
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
+
+
+
+
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
