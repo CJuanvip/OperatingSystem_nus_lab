@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-static sm_status_t array[SM_MAX_SERVICES];
+static sm_status_t* array[SM_MAX_SERVICES];
 
 
 // Use this function to any initialisation if you need to.
@@ -25,39 +25,38 @@ void sm_free(void) {
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
-    int PID = fork();
+    pid_t PID;
+
+    PID = fork();
 
     if (PID == 0) { //Child Process
-        sm_status_t node;
-        malloc(sizeof(node));
+        sm_status_t* node;
+        node = (sm_status_t*) malloc(sizeof(node));
         
-        node.pid = getpid();
-        node.path = (char*) processes;
-        node.running = true;
+        node->pid = getpid();
+        node->path = (char*) processes;
+        node->running = true;
+
+        printf("Process: %d  Running: %d \n", node->pid, node->running);
 
         array[0] = node;
+        printf("Process: %d  Running: %d \n", array[0]->pid, array[0]->running);
+
 
         execv(processes[0], (char**) processes);
     }
 
-    wait(NULL);
+    else { //Parent Process
+        
+    }
 
 }
 
 
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
-    int i, count;
 
-    for (i=0; i < SM_MAX_SERVICES; i++) {
-       if (array[i] != NULL) {
-            count += 1;
-       }
-    }
-
-    statuses[0] = array[0];
-
-    return (size_t) count;
+    return (size_t) 11111111111;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
