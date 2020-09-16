@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 
 static sm_status_t* array[SM_MAX_SERVICES];
 
@@ -25,29 +26,37 @@ void sm_free(void) {
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
-    pid_t PID;
-
+    pid_t PID, w;
+    size_t len = strlen(processes[0]);
+    char *src[len];
+    *src = (char*) malloc(sizeof(char) * len);     
+    int wstatus;
     PID = fork();
+    strcpy(*src, processes[0]);
+
 
     if (PID == 0) { //Child Process
-        sm_status_t* node;
-        node = (sm_status_t*) malloc(sizeof(node));
-        
-        node->pid = getpid();
-        node->path = (char*) processes;
-        node->running = true;
-
-        printf("Process: %d  Running: %d \n", node->pid, node->running);
-
-        array[0] = node;
-        printf("Process: %d  Running: %d \n", array[0]->pid, array[0]->running);
-
-
         execv(processes[0], (char**) processes);
     }
 
     else { //Parent Process
+        sm_status_t* node;
+        node = (sm_status_t*) malloc(sizeof(sm_status_t));
         
+        w = waitpid(PID, &wstatus, WNOHANG);
+
+        node->pid = PID;
+        node->path =  *src;
+
+        if (w == 0) {
+            node->running = true;
+        }
+
+        else {
+            node->running = false;
+        }
+
+        array[0] = node;        
     }
 
 }
@@ -55,8 +64,22 @@ void sm_start(const char *processes[]) {
 
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
+    
+    int i, count = 0;
 
-    return (size_t) 11111111111;
+    for (i = 0; i < SM_MAX_SERVICES; i++) {
+        if (array[i] == NULL) {
+            break;
+        }
+        else {
+            statuses[i] = *array[i];
+            count += 1;
+        }
+    }
+
+    printf("Process: %d  Running: %d \n", statuses[0].pid, statuses[0].running);
+
+    return (size_t) count;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
