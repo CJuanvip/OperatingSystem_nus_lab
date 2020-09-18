@@ -14,7 +14,7 @@
 #include <sys/types.h>
 
 static sm_status_t* array[SM_MAX_SERVICES];
-
+static int counter = 0;
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
@@ -56,7 +56,8 @@ void sm_start(const char *processes[]) {
             node->running = false;
         }
 
-        array[0] = node;        
+        array[counter] = node;
+        counter += 1;
     }
 
 }
@@ -65,21 +66,20 @@ void sm_start(const char *processes[]) {
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
     
-    int i, count = 0;
+   int i;
 
-    for (i = 0; i < SM_MAX_SERVICES; i++) {
-        if (array[i] == NULL) {
-            break;
-        }
-        else {
-            statuses[i] = *array[i];
-            count += 1;
-        }
-    }
+   for (i = 0; i < SM_MAX_SERVICES; i++) {
+       if (array[i] == NULL) {
+           break;
+       }
+       else {
+           statuses[i] = *array[i];
+       }
+   }
 
-    printf("Process: %d  Running: %d \n", statuses[0].pid, statuses[0].running);
+   // printf("Process: %d  Running: %d \n", statuses[0].pid, statuses[0].running);
 
-    return (size_t) count;
+    return (size_t) counter;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
