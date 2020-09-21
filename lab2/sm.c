@@ -18,13 +18,13 @@
 #define WRITE_END 1
 
 
-//typedef struct vectord {
-//    int len;    // there must be at least one other data member
-//    pid_t arr[]; // the flexible array member must be last
-//} PID_Array;
+typedef struct vectord {
+    int len;    // there must be at least one other data member
+    pid_t arr[]; // the flexible array member must be last
+} PID_Array;
 
 
-//static PID_Array* pid_array[SM_MAX_SERVICES];
+static PID_Array* pid_array[SM_MAX_SERVICES];
 static sm_status_t* array[SM_MAX_SERVICES];
 static int counter = 0;
 
@@ -43,7 +43,7 @@ void sm_start(const char *processes[]) {
       
     int wstatus, k, pid_counter = 0, number_of_pipes = 0, i = 0, j = 1;
     int positions[SM_MAX_SERVICES]; // Array of positions of processes in processes[]
-   // PID_Array* pidarr; 
+    PID_Array* pidarr; 
   
    
     positions[0] = 0;
@@ -63,15 +63,9 @@ void sm_start(const char *processes[]) {
     }
 
 
-//    pidarr = malloc(sizeof(PID_Array) + j * sizeof(pid_t));
-//    pidarr->len = j;
+    pidarr = malloc(sizeof(PID_Array) + j * sizeof(pid_t));
+    pidarr->len = j;
     int pipeFd[number_of_pipes][2];  
-    int g;
-
-    // Prints the respective paths of the processes
-    for (g = 0; g < number_of_pipes + 1; g++) {
-        printf("Process %d : Path - %s \n", g, processes[positions[g]]);
-    }
 
     for (k = 0; k < number_of_pipes + 1; k++) { 
 
@@ -80,15 +74,14 @@ void sm_start(const char *processes[]) {
             pipe(pipeFd[k]);
 
             if ((PID = fork()) == 0) { //child process
-                printf("Process %s \n", processes[positions[k]]);
                 close(0); //close stdin
                 close(1);
                 dup2(pipeFd[k][WRITE_END], STDOUT_FILENO);
                 execv(processes[positions[k]], (char **) &processes[positions[k]]);
             }    
             else {
-//                pidarr->arr[pid_counter] = PID;
-//                pid_counter += 1;
+                pidarr->arr[pid_counter] = PID;
+                pid_counter += 1;
                 wait(NULL);
                 close(pipeFd[k][WRITE_END]);
             }
@@ -103,14 +96,13 @@ void sm_start(const char *processes[]) {
             
 
             if ((PID = fork()) == 0) {
-                printf("Process %s \n", processes[positions[k]]);
                 close(0);
                 dup2(pipeFd[k - 1][READ_END], STDIN_FILENO);   
                 execv(processes[positions[k]], (char**) &processes[positions[k]]);
             }
             else {
 
-//                pidarr->arr[pid_counter] = PID;
+                pidarr->arr[pid_counter] = PID;
        
                 sm_status_t* node;
                 node = (sm_status_t*) malloc(sizeof(sm_status_t));
@@ -128,7 +120,7 @@ void sm_start(const char *processes[]) {
                     node->running = false;
                 }
                 
-//                pid_array[counter] = pidarr;
+                pid_array[counter] = pidarr;
                 array[counter] = node;
                 counter += 1;
            }
@@ -138,7 +130,6 @@ void sm_start(const char *processes[]) {
             pipe(pipeFd[k]);
 
             if ((PID = fork()) == 0) { //child process
-                printf("Process %s \n", processes[positions[k]]);
                 close(0);
                 close(1);
                 dup2(pipeFd[k-1][READ_END], STDIN_FILENO);
@@ -148,8 +139,8 @@ void sm_start(const char *processes[]) {
                 execv(processes[positions[k]], (char**) &processes[positions[k]]);
             }
             else {
-//                pidarr->arr[pid_counter] = PID;
-//                pid_counter += 1;
+                pidarr->arr[pid_counter] = PID;
+                pid_counter += 1;
                 wait(NULL);
                 close(pipeFd[k][WRITE_END]);
                 close(pipeFd[k-1][READ_END]);
@@ -158,7 +149,11 @@ void sm_start(const char *processes[]) {
     
     }
 
-
+    int s;
+    printf("LIST OF PROCESSES AND THEIR PIDS\n");
+    for (s = 0; s < j; s++) {
+        printf("Process: %s     PID:  %d\n", processes[positions[s]], pidarr->arr[s]);
+    }
     
 // QUESTION 1a
 //    PID = fork();
