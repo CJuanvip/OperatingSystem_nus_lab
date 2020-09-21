@@ -17,17 +17,8 @@
 #define READ_END 0
 #define WRITE_END 1
 
-
-struct vectord {
-    int len;    // there must be at least one other data member
-    pid_t arr[]; // the flexible array member must be last
-} PID_Array;
-
-
-static PID_Array* pid_array[SM_MAX_SERVICES];
 static sm_status_t* array[SM_MAX_SERVICES];
 static int counter = 0;
-static int pid_counter = 0;
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
@@ -43,12 +34,11 @@ void sm_start(const char *processes[]) {
     size_t len = strlen(processes[0]);
     char *src[len];
     *src = (char*) malloc(sizeof(char) * len);     
-    int wstatus, k, number_of_pipes = 0, i = 0, j = 1;
+    int wstatus, number_of_pipes = 0, i = 0, j = 1;
     int positions[SM_MAX_SERVICES]; // Array of positions of processes in processes[]
-    
-  
+    int k;
+    char line[1000];    
    
-    positions[0] = 0;
     // Getting the posiition of the paths in processes[] and the number of pipes needed
     while (true) { 
         if (processes[i] == NULL) {
@@ -58,7 +48,6 @@ void sm_start(const char *processes[]) {
             else {
                 positions[j] = i+1;
                 j += 1;
-                count += 1;
             }
             number_of_pipes += 1;
         }       
@@ -66,12 +55,7 @@ void sm_start(const char *processes[]) {
     }
 
     int pipeFd[number_of_pipes][2];  
-    int g;
-
-    // Prints the respective paths of the processes
-    for (g = 0; g < number_of_pipes + 1; g++) {
-        printf("Process %d : Path - %s \n", g, processes[positions[g]]);
-    }
+    
 
     for (k = 0; k < number_of_pipes + 1; k++) { 
 
@@ -80,12 +64,11 @@ void sm_start(const char *processes[]) {
             pipe(pipeFd[k]);
 
             if ((PID = fork()) == 0) { //child process
+                dup2(STDIN_FILENO, 0);
+                dup2(STDOUT_FILENO, pipeFd[k][WRITE_END]);
                 printf("Process %s \n", processes[positions[k]]);
-                close(0); //close stdin
-                close(1);
-                dup2(pipeFd[k][WRITE_END], STDOUT_FILENO);
-                execv(processes[positions[k]], (char **) &processes[positions[k]]);
-            }    
+                execv(processes[positions[k]], (char**) processes[positions[k]]);
+            }
             else {
                 wait(NULL);
                 close(pipeFd[k][WRITE_END]);
@@ -94,48 +77,24 @@ void sm_start(const char *processes[]) {
 
         else if (k == number_of_pipes) { // At the end of the Service
             if ((PID = fork()) == 0) {
-                printf("Process %s \n", processes[positions[k]]);
-                close(0);
-                dup2(pipeFd[k - 1][READ_END], STDIN_FILENO);   
-                execv(processes[positions[k]], (char**) &processes[positions[k]]);
+                dup2(STDIN_FILENO, pipeFd[k - 1][READ_END]);   
+                execv(processes[positions[k]], (char**) processes[positions[k]]);
             }
-            else {
-                sm_status_t* node;
-                node = (sm_status_t*) malloc(sizeof(sm_status_t));
-     
-                w = waitpid(PID, &wstatus, WNOHANG);
-
-                node->pid = PID;
-                node->path =  *src;
-
-                if (w == 0) {
-                    node->running = true;
-                }
-
-                else {
-                    node->running = false;
-                }
-
-                array[counter] = node;
-                counter += 1;
-           }
-
-
-            
         }
 
         else {
             pipe(pipeFd[k]);
 
             if ((PID = fork()) == 0) { //child process
-                printf("Process %s \n", processes[positions[k]]);
-                close(0);
-                close(1);
-                dup2(pipeFd[k-1][READ_END], STDIN_FILENO);
-                dup2(pipeFd[k][WRITE_END], STDOUT_FILENO);
+                dup2(STDIN_FILENO, pipeFd[k-1][READ_END]);
+                dup2(STDOUT_FILENO, pipeFd[k][WRITE_END]);
                 
+                read(pipeFd[k-1][READ_END], line, sizeof(line));
+                printf("Input is %s \n", line);
+
+                printf("Process %s \n", processes[positions[k]]);
                 //Right now, both ends of pipe is open
-                execv(processes[positions[k]], (char**) &processes[positions[k]]);
+                execv(processes[positions[k]], (char**) processes[positions[k]]);
             }
             else {
                 wait(NULL);
@@ -148,7 +107,7 @@ void sm_start(const char *processes[]) {
 
 
     
-// QUESTION 1a
+
 //    PID = fork();
 //   // strcpy(*src, processes[0]);
 //
