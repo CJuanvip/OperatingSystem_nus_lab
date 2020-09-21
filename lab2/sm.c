@@ -18,16 +18,16 @@
 #define WRITE_END 1
 
 
-struct vectord {
-    int len;    // there must be at least one other data member
-    pid_t arr[]; // the flexible array member must be last
-} PID_Array;
+//typedef struct vectord {
+//    int len;    // there must be at least one other data member
+//    pid_t arr[]; // the flexible array member must be last
+//} PID_Array;
 
 
-static PID_Array* pid_array[SM_MAX_SERVICES];
+//static PID_Array* pid_array[SM_MAX_SERVICES];
 static sm_status_t* array[SM_MAX_SERVICES];
 static int counter = 0;
-static int pid_counter = 0;
+
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
@@ -40,12 +40,10 @@ void sm_free(void) {
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
     pid_t PID, w;
-    size_t len = strlen(processes[0]);
-    char *src[len];
-    *src = (char*) malloc(sizeof(char) * len);     
-    int wstatus, k, number_of_pipes = 0, i = 0, j = 1;
+      
+    int wstatus, k, pid_counter = 0, number_of_pipes = 0, i = 0, j = 1;
     int positions[SM_MAX_SERVICES]; // Array of positions of processes in processes[]
-    
+   // PID_Array* pidarr; 
   
    
     positions[0] = 0;
@@ -58,13 +56,15 @@ void sm_start(const char *processes[]) {
             else {
                 positions[j] = i+1;
                 j += 1;
-                count += 1;
             }
             number_of_pipes += 1;
         }       
         i += 1;
     }
 
+
+//    pidarr = malloc(sizeof(PID_Array) + j * sizeof(pid_t));
+//    pidarr->len = j;
     int pipeFd[number_of_pipes][2];  
     int g;
 
@@ -75,7 +75,7 @@ void sm_start(const char *processes[]) {
 
     for (k = 0; k < number_of_pipes + 1; k++) { 
 
-        if (k == 0) { // At the beginning of the Service
+        if (k == 0 && k != number_of_pipes) { // At the beginning of the Service
             
             pipe(pipeFd[k]);
 
@@ -87,12 +87,21 @@ void sm_start(const char *processes[]) {
                 execv(processes[positions[k]], (char **) &processes[positions[k]]);
             }    
             else {
+//                pidarr->arr[pid_counter] = PID;
+//                pid_counter += 1;
                 wait(NULL);
                 close(pipeFd[k][WRITE_END]);
             }
         }
 
-        else if (k == number_of_pipes) { // At the end of the Service
+        else if (k == number_of_pipes) { // At the end of the Service OR only one process in a service
+            // Acquiring the path for status
+            size_t len = strlen(processes[positions[k]]);
+            char *src[len];
+            *src = (char*) malloc(sizeof(char) * len);
+            strcpy(*src, processes[positions[k]]);
+            
+
             if ((PID = fork()) == 0) {
                 printf("Process %s \n", processes[positions[k]]);
                 close(0);
@@ -100,6 +109,9 @@ void sm_start(const char *processes[]) {
                 execv(processes[positions[k]], (char**) &processes[positions[k]]);
             }
             else {
+
+//                pidarr->arr[pid_counter] = PID;
+       
                 sm_status_t* node;
                 node = (sm_status_t*) malloc(sizeof(sm_status_t));
      
@@ -115,13 +127,11 @@ void sm_start(const char *processes[]) {
                 else {
                     node->running = false;
                 }
-
+                
+//                pid_array[counter] = pidarr;
                 array[counter] = node;
                 counter += 1;
            }
-
-
-            
         }
 
         else {
@@ -138,6 +148,8 @@ void sm_start(const char *processes[]) {
                 execv(processes[positions[k]], (char**) &processes[positions[k]]);
             }
             else {
+//                pidarr->arr[pid_counter] = PID;
+//                pid_counter += 1;
                 wait(NULL);
                 close(pipeFd[k][WRITE_END]);
                 close(pipeFd[k-1][READ_END]);
