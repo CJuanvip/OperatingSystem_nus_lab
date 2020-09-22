@@ -29,26 +29,23 @@ static sm_status_t* array[SM_MAX_SERVICES];
 static int counter = 0;
    
 // Helper function
-void start_helper(const char *processes[], PID_Array* pidarr, int pipeFd[][2], int number_of_pipes, int positions[], int pid_counter) {
+void start_helper(const char *processes[], PID_Array* pidarr, int pipeFd[][2], int positions[], int number_of_pipes) {
     int k;
     pid_t PID;
-
+    int pid_counter = 0;
+  
     for (k = 0; k < number_of_pipes; k++) {  
         if (k == 0 && k != number_of_pipes) { // Check if its the first process and NOT the only process
 
             pipe(pipeFd[k]);
                 
             if ((PID = fork()) == 0) { //child process
-                printf("HI CHILDREN\n");    
-
-
                 close(0); //close stdin
                 close(1);
                 dup2(pipeFd[k][WRITE_END], STDOUT_FILENO);
                 execv(processes[positions[k]], (char **) &processes[positions[k]]);
             }    
             else {
-                printf("HI PARENT");    
                 pidarr->arr[pid_counter] = PID;
                 pid_counter += 1;
                 wait(NULL);
@@ -94,13 +91,11 @@ void sm_free(void) {
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
     pid_t PID, w;
-      
-    int wstatus;
-    int number_of_pipes = 0, i = 0, j = 1, pid_counter = 0;
+    int wstatus, number_of_pipes = 0, i = 0, j = 1;
     int positions[SM_MAX_SERVICES]; // Array of positions of processes in processes[]
     static PID_Array* pidarr; 
   
-     
+
     positions[0] = 0;
     // Getting the posiition of the paths in processes[] and the number of pipes needed
     while (true) { 
@@ -117,13 +112,13 @@ void sm_start(const char *processes[]) {
         i += 1;
     }
 
-
     pidarr = malloc(sizeof(PID_Array) + j * sizeof(pid_t));
     pidarr->len = j;
     int pipeFd[number_of_pipes][2];  
 
+
     //
-    start_helper(processes, pidarr, pipeFd, number_of_pipes, positions, pid_counter);
+    start_helper(processes, pidarr, pipeFd, positions, number_of_pipes);
     
             // Acquiring the path for status
             size_t len = strlen(processes[positions[j-1]]);
@@ -239,14 +234,15 @@ void sm_stop(size_t index) {
 }
 
 void sm_wait(size_t index) {
+    int wstatus, i, w = 0;
     int length = pid_array[index]->len;
-    int i, w, wstatus;
-
+    
     for (i = 0; i < length; i++) {
-        w = waitpid(pid_array[index]->arr[i], &wstatus, WNOHANG);
-        
-        if (w == 0) {
-            kill(pid_array[index]->arr[i], 15);
+       while (w == 0){
+            w = waitpid(pid_array[index]->arr[i], &wstatus, WIFEXITED(wstatus));
+            if (w != 0) {
+                break;
+            }
         }
     }
 
@@ -267,6 +263,75 @@ void sm_shutdown(void) {
 
 // Exercise 4: start with output redirection
 void sm_startlog(const char *processes[]) {
+    pid_t PID, w;
+    int wstatus, number_of_pipes = 0, i = 0, j = 1;
+    int positions[SM_MAX_SERVICES]; // Array of positions of processes in processes[]
+    static PID_Array* pidarr; 
+  
+
+    positions[0] = 0;
+    // Getting the posiition of the paths in processes[] and the number of pipes needed
+    while (true) { 
+        if (processes[i] == NULL) {
+            if (processes[i+1] == NULL) {
+                break;     
+            }
+            else {
+                positions[j] = i+1;
+                j += 1;
+            }
+            number_of_pipes += 1;
+        }       
+        i += 1;
+    }
+
+    pidarr = malloc(sizeof(PID_Array) + j * sizeof(pid_t));
+    pidarr->len = j;
+    int pipeFd[number_of_pipes][2];  
+
+    start_helper(processes, pidarr, pipeFd, positions, number_of_pipes);
+    
+            size_t len = strlen(processes[positions[j-1]]);
+            char *src[len];
+            *src = (char*) malloc(sizeof(char) * len);
+            strcpy(*src, processes[positions[j-1]]);
+            
+
+
+            if ((PID = fork()) == 0) {
+                close(0);
+                close(1);
+
+              
+
+                dup2(pipeFd[j - 2][READ_END], STDIN_FILENO);
+           
+                execv(processes[positions[j-1]], (char**) &processes[positions[j-1]]);
+            }
+            else {
+                
+                pidarr->arr[j-1]= PID;
+       
+                sm_status_t* node;
+                node = (sm_status_t*) malloc(sizeof(sm_status_t));
+     
+                w = waitpid(PID, &wstatus, WNOHANG);
+
+                node->pid = PID;
+                node->path =  *src;
+
+                if (w == 0) {
+                    node->running = true;
+                }
+
+                else {
+                    node->running = false;
+                }
+                
+                pid_array[counter] = pidarr;
+                array[counter] = node;
+                counter += 1;
+           }
 
     
 }
