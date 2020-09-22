@@ -12,7 +12,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define READ_END 0
 #define WRITE_END 1
@@ -24,6 +25,9 @@ typedef struct vectord {
 } PID_Array;
 
 
+static char* log_array[SM_MAX_SERVICES] = {"service0.log", "service1.log", "service2.log","service3.log", "service4.log", "service5.log", "service6.log", "service7.log","service8.log","service9.log","service10.log","service11.log",  
+                                           "service12.log", "service13.log","service14.log","service15.log","service16.log","service17.log", "service18.log","service19.log","service20.log","service21.log","service22.log",
+                                           "service23.log", "service24.log","service25.log","service26.log", "service27.log","service28.log","service29.log", "service30.log","service31.log"};
 static PID_Array* pid_array[SM_MAX_SERVICES];
 static sm_status_t* array[SM_MAX_SERVICES];
 static int counter = 0;
@@ -48,7 +52,6 @@ void start_helper(const char *processes[], PID_Array* pidarr, int pipeFd[][2], i
             else {
                 pidarr->arr[pid_counter] = PID;
                 pid_counter += 1;
-                wait(NULL);
                 close(pipeFd[k][WRITE_END]);
             }
         }
@@ -69,7 +72,6 @@ void start_helper(const char *processes[], PID_Array* pidarr, int pipeFd[][2], i
             else {
                 pidarr->arr[pid_counter] = PID;
                 pid_counter += 1;
-                wait(NULL);
                 close(pipeFd[k][WRITE_END]);
                 close(pipeFd[k-1][READ_END]);
             }
@@ -157,12 +159,6 @@ void sm_start(const char *processes[]) {
                 counter += 1;
            }
         
-    int s;
-    printf("LIST OF PROCESSES AND THEIR PIDS\n");
-    for (s = 0; s < j; s++) {
-        printf("Process: %s     PID:  %d\n", processes[positions[s]], pidarr->arr[s]);
-    }
-    
 // QUESTION 1a
 //    PID = fork();
 //   // strcpy(*src, processes[0]);
@@ -214,9 +210,7 @@ size_t sm_status(sm_status_t statuses[]) {
        }
    }
 
-   // printf("Process: %d  Running: %d \n", statuses[0].pid, statuses[0].running);
-
-    return (size_t) counter;
+   return (size_t) counter;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
@@ -234,18 +228,12 @@ void sm_stop(size_t index) {
 }
 
 void sm_wait(size_t index) {
-    int wstatus, i, w = 0;
+    int wstatus, i;
     int length = pid_array[index]->len;
     
     for (i = 0; i < length; i++) {
-       while (w == 0){
-            w = waitpid(pid_array[index]->arr[i], &wstatus, WIFEXITED(wstatus));
-            if (w != 0) {
-                break;
-            }
-        }
+        waitpid(pid_array[index]->arr[i], &wstatus, 0);
     }
-
 }
 
 void sm_shutdown(void) {
@@ -296,16 +284,16 @@ void sm_startlog(const char *processes[]) {
             *src = (char*) malloc(sizeof(char) * len);
             strcpy(*src, processes[positions[j-1]]);
             
-
+            int output = open(log_array[counter], O_APPEND | O_CREAT | O_RDWR, 00777);
 
             if ((PID = fork()) == 0) {
                 close(0);
                 close(1);
-
-              
-
+                close(2);
                 dup2(pipeFd[j - 2][READ_END], STDIN_FILENO);
-           
+                dup2(output, STDOUT_FILENO);
+                dup2(output, STDERR_FILENO);
+
                 execv(processes[positions[j-1]], (char**) &processes[positions[j-1]]);
             }
             else {
@@ -331,6 +319,7 @@ void sm_startlog(const char *processes[]) {
                 pid_array[counter] = pidarr;
                 array[counter] = node;
                 counter += 1;
+
            }
 
     
@@ -339,9 +328,25 @@ void sm_startlog(const char *processes[]) {
 // Exercise 5: show log file
 void sm_showlog(size_t index) {
 
+    FILE *f;
+    int c;
+ 
+    f = fopen(log_array[index], "r");
+   
+    if (f == NULL) {
+          printf("service has no log file\n");
+    }
 
+    else {
+        c = fgetc(f); 
+        while (c != EOF) 
+            {
+                printf ("%c", c);
+                c = fgetc(f); 
+            } 
+    }
 
-
-
-
+    if (f != NULL) {
+        fclose(f);
+    }
 }
