@@ -17,18 +17,23 @@ void barrier_init ( barrier_t *barrier, int count ) {
     barrier->lock = malloc(sizeof(sem_t));
 
     sem_init(barrier->sem, 0, 1);
-    sem_init(barrier->lock, 0, 0);
+    sem_init(barrier->lock, 0, 1);
 }
 
 void barrier_wait ( barrier_t *barrier ) {
     sem_wait(barrier->sem);
-        barrier->val += 1;
-    sem_post(barrier->sem);
+    if (barrier->val == 0) {    
+        sem_wait(barrier->lock);
+    }
+        
+    barrier->val += 1;
     
     if (barrier->val == barrier->count) {
+        barrier->val = 0;
         sem_post(barrier->lock);
     }
-
+    sem_post(barrier->sem);
+    
     sem_wait(barrier->lock);
     sem_post(barrier->lock);
 }
