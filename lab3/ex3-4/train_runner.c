@@ -60,7 +60,7 @@ int main ( int argc, char *argv[] ) {
   exit_queues_sem = malloc(sizeof(sem_t));
   ensure_successful_malloc( exit_queues_sem );
   sem_init( exit_queues_sem, 0, 1 );
-
+ 
   // initialise entry_controller
   entry_controller_t *common_entry_controller = malloc(sizeof(entry_controller_t));
   ensure_successful_malloc( common_entry_controller );

@@ -15,8 +15,11 @@
 typedef struct entry_controller {
     // define your variables here
     int loading_bays;
-    sem_t into_bay;
-    sem_t lock;
+    sem_t *into_bay;
+    sem_t *lock;
+    sem_t *trains[ENTRY_CONTROLLER_MAX_USES];
+    int front;
+    int back;
 
 } entry_controller_t;
 
