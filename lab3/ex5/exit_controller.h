@@ -16,8 +16,8 @@ typedef struct exit_controller {
     int number;
     sem_t *lock;
     sem_t *exit;
-    int counter[2];
-    sem_t *priorities[2];
+    int counter[MAX_PRIORITIES];
+    sem_t *priorities[MAX_PRIORITIES];
 
 } exit_controller_t;
 
