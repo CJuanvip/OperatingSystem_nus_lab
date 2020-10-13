@@ -13,6 +13,13 @@
 
 typedef struct exit_controller {
     // define your variables here
+    int number;
+    sem_t *lock;
+    sem_t *control;
+    sem_t *exit;
+    int counter[2];
+    sem_t *priorities[2];
+
 } exit_controller_t;
 
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities);

@@ -50,13 +50,14 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
     sem_post(entry_controller->trains[entry_controller->front]);
-    
+    sem_wait(entry_controller->lock);    
     if (entry_controller->front + 1 == 5000) {
         entry_controller->front = 0;
     }
     else {
         entry_controller->front += 1;
     }
+    sem_post(entry_controller->lock);
     sem_post(entry_controller->into_bay);
 
 }

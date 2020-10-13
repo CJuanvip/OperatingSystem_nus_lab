@@ -130,7 +130,7 @@ void exit_loading_bays(thread_task_t *task) {
   printf("[Train %3d] leaves the loading bay and starts waiting to exit (Priority: %d)\n",
          task->train_id,
          task->priority);
-
+//  printf("hello1");
   // update the exit queues
   sem_wait(exit_queues_sem);
   trains_in_exit_queues[task->priority][exit_queues[task->priority]] = task->train_id;
@@ -147,8 +147,10 @@ void exit_loading_bays(thread_task_t *task) {
   }
 
   sem_post(exit_queues_sem);
-
+//  printf("hello2");
+//  printf("Train %d before exit_controller wait\n", task->train_id); 
   exit_controller_wait(task->exit_controller, task->priority);
+//   printf("Train %d after exit_controller wait\n", task->train_id); 
   
   sem_wait(exit_queues_sem);
   
@@ -193,8 +195,10 @@ void exit_loading_bays(thread_task_t *task) {
 
   // perform exiting
   usleep( task->exit_time);
+ //  printf("Train %d before exit_controller post\n", task->train_id); 
   exit_controller_post(task->exit_controller, task->priority);
-  
+//    printf("Train %d after exit_controller post\n", task->train_id); 
+ 
   printf("[Train %3d] Exiting finished. Another train can exit. \n", task->train_id);
 
   
