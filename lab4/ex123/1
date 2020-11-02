@@ -150,14 +150,14 @@ int main () {
     assert(num_objects > 0);
     
     size_t start_index = 0;
-
-
+    
     printf("Arguments all good!\n");
     // find a name for our shm heap
     const char *const mem_name = find_good_shm_name();
     
     // create pipes
     bidir_pipe *const pp = malloc(sizeof(bidir_pipe) * num_proc);
+    
     // spawn children
     for (int i=0; i!=num_proc; ++i) {
         pipe2(pp[i].in.fd, O_DIRECT);
@@ -177,9 +177,11 @@ int main () {
     
     // init the shm heap
     shmheap_memory_handle mem = shmheap_create(mem_name, mem_size);
+    
     // store objects and sizes
     shmheap_object_handle *objects_arr = malloc(sizeof(shmheap_object_handle) * num_objects);
     size_t *sizes_arr = malloc(sizeof(size_t) * num_objects);
+    
     // read the input
     int type, index;
     while (scanf("%d%d", &type, &index) == 2) {

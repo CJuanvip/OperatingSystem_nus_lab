@@ -17,11 +17,11 @@ You may define other helper structs or convert the existing
 structs to typedefs, as long as the functions satisfy the
 requirements in the lab document.  If you declare additional names (helper structs or helper functions), they should be prefixed with "shmheap_" to avoid potential name clashes.
 */
-/*typedef struct {
+
+typedef struct {
     int is_free;
-    size_t sz;
-} bk;
-*/
+    int size;
+} book;
 
 typedef struct {
     int fd;
