@@ -1,8 +1,8 @@
 /*************************************
 * Lab 4
-* Name:
-* Student No:
-* Lab Group:
+* Name: Kieron Koh
+* Student No: A0206059H
+* Lab Group: 13
 *************************************/
 
 #include <stddef.h>
@@ -32,10 +32,6 @@ typedef struct {
 typedef struct {
     int offset;
 } shmheap_object_handle;
-
-typedef struct {
-    sem_t *lock;
-} shmheap_sem;
 
 /*
 These functions form the public API of your shmheap library.

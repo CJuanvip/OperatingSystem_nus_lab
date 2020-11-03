@@ -82,20 +82,25 @@ void *shmheap_underlying(shmheap_memory_handle mem) {
 }
 
 void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
+    sem_t *sem = (sem_t *)mem.base;
+    sem_wait(sem);
+
     void *ptr;  // pointer to allocated slot to be returned 
     book *info;  // bookkeeping of allocated slot
-
-    sem_t *sem = (sem_t *)mem.base;
+    void *end = (void *)((char *)mem.base + (int)mem.len);
     book *current = (book *) ((char *)mem.base + sizeof(sem_t));
     
-    sem_wait(sem);
+    if (sz % 8 != 0) {
+        sz = sz + 8 - (sz % 8);
+    }
+
     while (1) {
 //        printf("---BOOKKEEPING SLOT %d---\n", i);
 //        printf("isFree: %d\n", current->is_free);
 //        printf("free space: %d \n", current->size);
 //        printf("size to allocate + bookkeeping: %ld\n", sz + sizeof(book));
  
-        if (current->is_free == 0 || (int) (sz + sizeof(book)) > current->size) {
+        if (current->is_free == 0 || (int) sz > (int) current->size) {
             current = (book *) ((char *) current + current->size + sizeof(book));
             continue;
         }
@@ -110,12 +115,14 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             
            // pointer to allocated space to be returned
             ptr = (void *)((char *)current + sizeof(book));
-
             // pointer to next bookkeeping
-            info = (book *) ((char *)ptr + sz);
-            info->is_free = 1;
-            info->size = current_size - sz - sizeof(book); 
-            
+            if ((void *)((char *)ptr + sz) == end) {
+            }
+            else {
+                info = (book *)((char *) ptr + sz);
+                info->is_free = 1;
+                info->size = current_size - sz - sizeof(book); 
+            }
             break;
         }
     }
@@ -126,11 +133,11 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
 
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
     sem_t *sem = (sem_t *) mem.base;
+    sem_wait(sem);
     book *loop = (book *) ((char *) mem.base + sizeof(sem_t));
     book *current = (book *)((char *)ptr - sizeof(book)); 
     book *right = (book *)((char *)ptr + current->size); //bookkeeping for next space
 
-    sem_wait(sem);
 
     current->is_free = 1; //freeing the space
     
