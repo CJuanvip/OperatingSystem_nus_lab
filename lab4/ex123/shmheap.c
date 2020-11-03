@@ -105,6 +105,11 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             continue;
         }
         else {
+            if (current->size == (int) sz) { //if inserting between 2 datas
+                current->is_free = 0;
+                ptr = (void *)((char *)current + sizeof(book));
+            }
+            else { //if next data is free
             // get the remaining space 
             int current_size = current->size;
             // sets bookkeeping for allocated slot
@@ -116,9 +121,6 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
            // pointer to allocated space to be returned
             ptr = (void *)((char *)current + sizeof(book));
             // pointer to next bookkeeping
-            if ((void *)((char *)ptr + sz) == end) {
-            }
-            else {
                 info = (book *)((char *) ptr + sz);
                 info->is_free = 1;
                 info->size = current_size - sz - sizeof(book); 
@@ -134,13 +136,14 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
     sem_t *sem = (sem_t *) mem.base;
     sem_wait(sem);
+
     book *loop = (book *) ((char *) mem.base + sizeof(sem_t));
     book *current = (book *)((char *)ptr - sizeof(book)); 
     book *right = (book *)((char *)ptr + current->size); //bookkeeping for next space
-
-
+    book *first = loop;
+   
     current->is_free = 1; //freeing the space
-    
+
 //    printf("Current is_free : %d, Current Size: %d \n", current->is_free, current->size);
    
     // handling if there's a free space after this ptr
