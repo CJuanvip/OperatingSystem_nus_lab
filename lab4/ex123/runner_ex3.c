@@ -174,7 +174,6 @@ int main () {
     assert(num_objects > 0);
     
     size_t start_index = 0;
-    
     // find a name for our shm heap
     const char *const mem_name = find_good_shm_name();
     

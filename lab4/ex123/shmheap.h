@@ -6,7 +6,7 @@
 *************************************/
 
 #include <stddef.h>
-
+#include <semaphore.h>
 /*
 You should modify these structs to suit your implementation,
 but remember that all the functions declared here must have
@@ -33,6 +33,9 @@ typedef struct {
     int offset;
 } shmheap_object_handle;
 
+typedef struct {
+    sem_t *lock;
+} shmheap_sem;
 
 /*
 These functions form the public API of your shmheap library.
