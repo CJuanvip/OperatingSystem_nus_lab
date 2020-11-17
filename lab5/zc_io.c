@@ -160,6 +160,7 @@ off_t zc_lseek(zc_file *file, long offset, int whence) {
     file->offset += offset;
 
     if (file->offset < 0) {
+        sem_post(bufferEmpty);
         return -1;
     }
 
@@ -173,48 +174,23 @@ off_t zc_lseek(zc_file *file, long offset, int whence) {
 
 int zc_copyfile(const char *source, const char *dest) {
   // To implement
-  
     zc_file *src = zc_open(source);
     zc_file *des = zc_open(dest);
     
     int src_fd = src->fd;
     int des_fd = des->fd;
-    
     size_t size = src->size;
-
 
     ssize_t result = copy_file_range(src_fd, NULL, 
                                      des_fd, NULL,
                                      size, 0);
 
     ftruncate(des->fd, src->size);
+    
+    if (result == -1) {
+        return -1;
+    }
+
     return 0;
 
-
- /*  zc_file *src = zc_open(source);
-    zc_file *des = zc_open(dest);
-
-    int current = src->offset;
-    if (src->size == 0) {
-        return 0;
-    }
-    else {
-        size_t *size = (size_t *)malloc(sizeof(size_t));
-
-        *size = 4096;
-
-        while (src->offset != src->size) {
-//            printf("copying\n");
-            char *read = zc_read_start(src, size);
-            zc_read_end(src);
-            char *write = zc_write_start(des, *size);
-            write = read;
-            zc_write_end(des);
-        }
-
-        ftruncate(des->fd, src->size);
-
-        return 0;
-    }
-    */
 }
