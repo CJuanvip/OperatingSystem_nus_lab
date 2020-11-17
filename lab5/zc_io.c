@@ -49,6 +49,10 @@ zc_file *zc_open(const char *path) {
     if (zc->size != 0) {
         zc->base = mmap(NULL, zc->size, PROT_READ | PROT_WRITE, MAP_SHARED, zc->fd, 0);
     }
+
+    if (zc->base == (void *) MAP_FAILED) {
+        printf("Map Failed\n");
+    }
     
     return zc;
 }
@@ -142,6 +146,7 @@ void zc_write_end(zc_file *file) {
 
 off_t zc_lseek(zc_file *file, long offset, int whence) {
   // To implement
+    sem_wait(bufferEmpty);
     if (whence == 0) {
         file->offset = 0;
     } 
@@ -157,6 +162,8 @@ off_t zc_lseek(zc_file *file, long offset, int whence) {
     if (file->offset < 0) {
         return -1;
     }
+
+    sem_post(bufferEmpty);
     return file->offset;
 }
 
@@ -166,20 +173,48 @@ off_t zc_lseek(zc_file *file, long offset, int whence) {
 
 int zc_copyfile(const char *source, const char *dest) {
   // To implement
+  
     zc_file *src = zc_open(source);
     zc_file *des = zc_open(dest);
     
+    int src_fd = src->fd;
+    int des_fd = des->fd;
+    
+    size_t size = src->size;
+
+
+    ssize_t result = copy_file_range(src_fd, NULL, 
+                                     des_fd, NULL,
+                                     size, 0);
+
+    ftruncate(des->fd, src->size);
+    return 0;
+
+
+ /*  zc_file *src = zc_open(source);
+    zc_file *des = zc_open(dest);
+
     int current = src->offset;
     if (src->size == 0) {
         return 0;
     }
+    else {
+        size_t *size = (size_t *)malloc(sizeof(size_t));
 
-        char *read = zc_read_start(src, &src->size);
-        zc_read_end;
-        char *write = zc_write_start(des, src->size);
-        *write = *read;
+        *size = 4096;
 
-        zc_write_end;
+        while (src->offset != src->size) {
+//            printf("copying\n");
+            char *read = zc_read_start(src, size);
+            zc_read_end(src);
+            char *write = zc_write_start(des, *size);
+            write = read;
+            zc_write_end(des);
+        }
 
-    return -1;
+        ftruncate(des->fd, src->size);
+
+        return 0;
+    }
+    */
 }
